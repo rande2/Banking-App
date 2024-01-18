@@ -12,5 +12,6 @@ public class SavingsAccount extends AbstractBankAccount{
     SavingsAccount(String string){
         type='S';
         number=string.substring(1,string.length());
+        balance=Double.parseDouble(readBalance());
     }
 }

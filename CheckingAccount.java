@@ -12,6 +12,7 @@ public class CheckingAccount extends AbstractBankAccount{
     CheckingAccount(String string){
         type='C';
         number=string.substring(1,string.length());
+        balance=Double.parseDouble(readBalance());
     }
     
 }

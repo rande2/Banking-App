@@ -10,7 +10,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,11 +29,12 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        Path users = PathGetter.getPath("resources/users.txt", PathGetter.Location.PROGRAM);
+        //ensure the files exist
+        Path users = PathGetter.programResource("resources/users.txt");
         PathGetter.ensureExistance(users);
-        Path accountsF = PathGetter.getPath("resources/accounts.txt", PathGetter.Location.PROGRAM);
+        Path accountsF = PathGetter.programResource("resources/accounts.txt");
         PathGetter.ensureExistance(accountsF);
-        Path encryptStuff = PathGetter.getPath("resources/encrypt.txt", PathGetter.Location.PROGRAM);
+        Path encryptStuff = PathGetter.programResource("resources/encrypt.txt");
         if (!Files.exists(encryptStuff))
             try {
             Files.write(encryptStuff, "abcdefghijklmnop\n65536".getBytes(), java.nio.file.StandardOpenOption.CREATE);
@@ -42,16 +42,15 @@ public class Main {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        Long card = 1234567890L;
+        String card = "1234567890";
         String p = "my_pass";
         ArrayList<AbstractBankAccount> accounts = new ArrayList<>();
-        accounts.add(new AbstractBankAccount(1234567890L, 'C'));
-        accounts.add(new AbstractBankAccount(9876543210L, 'J'));
+        accounts.add(AbstractBankAccount.newAccount("C1234567890"));
+        accounts.add(AbstractBankAccount.newAccount("J9876543210"));
         List<String> encrypt;
         try {
             encrypt = Files.readAllLines(encryptStuff);
             int ittr = Integer.parseInt(encrypt.get(1));
-            System.out.println(PathGetter.getProgramDir());
             System.out.println(encrypt.get(0));
             System.out.println(Arrays.toString(encrypt.get(0).getBytes()));
             byte[] salt = encrypt.get(0).getBytes();
@@ -65,9 +64,9 @@ public class Main {
             System.out.println("ID: " + Hash.userID(string));
             System.out.println("Pass: " + Hash.password(string));
             System.out.println("Name: " + Hash.name(string));
-            ArrayList<String> accs = Hash.accounts(string);
+            ArrayList<AbstractBankAccount> accs = Hash.accounts(string);
             System.out.println("Accs:");
-            for (String i : accs) {
+            for (AbstractBankAccount i : accs) {
                 System.out.println(i);
             }
             System.out.println("a");
@@ -106,8 +105,6 @@ public class Main {
                 frame.setSize(400,300);
             }
         });
-        Scanner in = new Scanner(System.in);
-        in.nextLine();
     }
 
 }

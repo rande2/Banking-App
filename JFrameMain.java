@@ -9,16 +9,24 @@ package bankProject;
  * @author Rowan
  */
 public class JFrameMain extends javax.swing.JFrame {
-    private final JPanelUserLogin userLogin;
     /**
      * Creates new form JFrameMain
      */
+    private javax.swing.JPanel currentPanel=null;
     public JFrameMain() {
         initComponents();
-        add(userLogin=new JPanelUserLogin());
-        userLogin.setVisible(true);
+        setPanel(new JPanelUserLogin(this));
     }
 
+    public final void setPanel(javax.swing.JPanel panel){
+        if(currentPanel!=null)
+            remove(currentPanel);
+        currentPanel=panel;
+        add(currentPanel);
+        currentPanel.setVisible(true);
+        //refresh the frame
+        super.paintComponents(getGraphics());
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -29,6 +37,7 @@ public class JFrameMain extends javax.swing.JFrame {
     private void initComponents() {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("A Somewhat Functional Banking App");
         getContentPane().setLayout(new javax.swing.OverlayLayout(getContentPane()));
 
         pack();

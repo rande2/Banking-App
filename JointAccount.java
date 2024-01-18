@@ -12,5 +12,6 @@ public class JointAccount extends AbstractBankAccount{
     JointAccount(String string){
         type='J';
         number=string.substring(1,string.length());
+        balance=Double.parseDouble(readBalance());
     }
 }

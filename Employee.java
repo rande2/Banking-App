@@ -13,4 +13,7 @@ public class Employee extends AbstractUser {
         this.id=id;
         idMarker='E';
     }
+    public static void createAccount(char t){
+        
+    }
 }

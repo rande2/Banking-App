@@ -4,6 +4,12 @@
  */
 package bankProject;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
@@ -128,32 +134,27 @@ public class Hash {
         return null;
     }
     
-    public static ArrayList<AbstractBankAccount> accounts(String string){
+    public static ArrayList<AbstractBankAccount> accounts(String userString){
         ArrayList<AbstractBankAccount> result=new ArrayList<>();
         char marker=AbstractUser.getAccountMarker();
         boolean foundMarker=false;
         boolean reading=false;
         int start=0;
-        for(int i=0;i<string.length();i++){
+        for(int i=0;i<userString.length();i++){
             if(!reading){
                 if(foundMarker){
-                    if(string.charAt(i)==marker){
+                    if(userString.charAt(i)==marker){
                         reading=true;
                         start=i+1;
-                    }else if(string.charAt(i)==AbstractUser.getTerminatorMarker())
+                    }else if(userString.charAt(i)==AbstractUser.getTerminatorMarker())
                         break;
                     foundMarker=false;
-                }else if(string.charAt(i)=='*'){
+                }else if(userString.charAt(i)=='*'){
                     foundMarker=true;
                 }  
             }else{
-               if(string.charAt(i)=='*'){
-                   switch(string.charAt(i)){
-                       case 'C': result.add(new CheckingAccount(string.substring(start,i)));break;
-                       case 'S':result.add(new SavingsAccount(string.substring(start,i)));break;
-                       case 'J':result.add(new JointAccount(string.substring(start,i)));break;
-                   }
-                   result.add(new AbstractBankAccountstring.substring(start,i));
+               if(userString.charAt(i)=='*'){
+                   result.add(AbstractBankAccount.newAccount(userString.substring(start,i)));
                    reading=false;
                    foundMarker=true;
                }
@@ -163,16 +164,12 @@ public class Hash {
     }
     
     
-    
-    public static String userText(Long cardNum,byte[] hash,String first,String last,List<AbstractBankAccount> accounts){
+    //TODO: chage cardNum to a string and move the 0 appender to other code
+    public static String userText(String cardNum,byte[] hash,String first,String last,List<AbstractBankAccount> accounts){
         Base64.Encoder enc = Base64.getEncoder();
         StringBuilder builder = new StringBuilder();
         builder.append("*U");
-        String id = cardNum.toString();
-        int diff=10-id.length();
-        for(int i=0;i<diff;i++)
-            builder.append("0");
-        builder.append(id);
+        builder.append(cardNum);
         builder.append("*P");
         builder.append(enc.encodeToString(hash));
         builder.append("*N");
@@ -202,6 +199,82 @@ public class Hash {
         builder.append("*T");
         return builder.toString();
     }
+    
+    public static String accountText(AbstractBankAccount account){
+        StringBuilder builder=new StringBuilder();
+        builder.append("*N");
+        builder.append(account.getNumber());
+        builder.append("*Y");
+        builder.append(account.getType());
+        builder.append("*B");
+        builder.append(account.getBalance());
+        builder.append("*T");
+        return builder.toString();
+    }
+    
+    public static String accountNumber(String accString){
+        char marker='N';
+        boolean foundMarker=false;
+        boolean reading=false;
+        int start=0;
+        for(int i=0;i<accString.length();i++){
+            if(!reading){
+                if(foundMarker){
+                    if(accString.charAt(i)==marker){
+                        reading=true;
+                        start=i+1;
+                    }else if(accString.charAt(i)==AbstractUser.getTerminatorMarker())
+                        break;
+                    foundMarker=false;
+                }else if(accString.charAt(i)=='*'){
+                    foundMarker=true;
+                }  
+            }else{
+               if(accString.charAt(i)=='*'){
+                   return accString.substring(start,i);
+               }
+            }
+        }
+        return null;
+    }
+    
+    public static String accountBalance(String accString){
+        char marker='B';
+        boolean foundMarker=false;
+        boolean reading=false;
+        int start=0;
+        for(int i=0;i<accString.length();i++){
+            if(!reading){
+                if(foundMarker){
+                    if(accString.charAt(i)==marker){
+                        reading=true;
+                        start=i+1;
+                    }else if(accString.charAt(i)==AbstractUser.getTerminatorMarker())
+                        break;
+                    foundMarker=false;
+                }else if(accString.charAt(i)=='*'){
+                    foundMarker=true;
+                }  
+            }else{
+               if(accString.charAt(i)=='*'){
+                   return accString.substring(start,i);
+               }
+            }
+        }
+        return null;
+    }
+    
+    public static void createBankAccount(AbstractBankAccount account){
+        Path accountFile = PathGetter.programResource("resources/accounts.txt");
+        PathGetter.ensureExistance(accountFile);
+        try(BufferedWriter accWriter = Files.newBufferedWriter(accountFile,StandardOpenOption.CREATE,StandardOpenOption.APPEND)){
+            accWriter.write(accountText(account));
+            accWriter.newLine();
+        } catch (IOException ex) {
+            Logger.getLogger(Hash.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
     public static byte[] hash(String password,byte[] salt,int itterationCount){
         int keyLength = salt.length*8;
         PBEKeySpec spec = new PBEKeySpec(password.toCharArray(),salt,itterationCount,keyLength);

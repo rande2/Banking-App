@@ -17,11 +17,12 @@ import java.util.List;
  * @author Rowan
  */
 public class JPanelUserLogin extends javax.swing.JPanel {
-
+    private JFrameMain frame;
     /**
      * Creates new form JPanelLogin
      */
-    public JPanelUserLogin() {
+    public JPanelUserLogin(JFrameMain f) {
+        frame=f;
         initComponents();
     }
 
@@ -142,12 +143,13 @@ public class JPanelUserLogin extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButtonLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonLoginActionPerformed
-        Path file = PathGetter.getPath("resources/users.txt",PathGetter.Location.PROGRAM);
-        Path encrypt = PathGetter.getPath("resources/encrypt.txt",PathGetter.Location.PROGRAM);
-        try{
+        Path file = PathGetter.programResource("resources/users.txt");
+        Path encrypt = PathGetter.programResource("resources/encrypt.txt");
+        try(BufferedReader reader = Files.newBufferedReader(file)){
             String username=jTextFieldUsrname.getText();
             if(username.length()!=10){
                 jTextPaneErrors.setText("ID must be a 10 digit number");
+                reader.close();
                 return;
             }
             String password=new String(jPasswordField1.getPassword());
@@ -156,22 +158,24 @@ public class JPanelUserLogin extends javax.swing.JPanel {
             int ittrs=Integer.parseInt(encryptData.get(1));
             byte[] hash=Hash.hash(password, salt, ittrs);
             Base64.Decoder dec = Base64.getDecoder();
-            
-            BufferedReader reader = Files.newBufferedReader(file);
             String line;
             while((line=reader.readLine())!=null){
                 if(username.equals(username))
                     if(Arrays.equals(dec.decode(Hash.password(line)),hash)){
+                        //TODO:figure this out
                         jTextPaneErrors.setText("logging in...");
                         UserAccount user = new UserAccount(username,Hash.accounts(line));
+                        frame.setPanel(new JPanelAccounts(frame,user.getAccounts()));
                     }else{
                         jTextPaneErrors.setText("The card number or password is incorrect.");
                     }
                 else
                     jTextPaneErrors.setText("The card number or password is incorrect.");
             }
+            reader.close();
         }catch(IOException ex){
             jTextPaneErrors.setText("A program error occurred.");
+            System.err.println(ex);
         }catch(NumberFormatException ex){
             jTextPaneErrors.setText("ID must be a 10 digit number");
         }
