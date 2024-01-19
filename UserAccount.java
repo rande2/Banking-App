@@ -12,10 +12,13 @@ import java.util.ArrayList;
  */
 public class UserAccount extends AbstractUser{
     private ArrayList<AbstractBankAccount> accountNumbers;
-    UserAccount(String id,ArrayList<AbstractBankAccount> accNums){
+    private String name;
+    UserAccount(String id,String n,ArrayList<AbstractBankAccount> accNums){
         this.id=id;
+        name=n;
         idMarker='U';
         accountNumbers=accNums;
     }
+    public String getName(){return name;}
     public ArrayList<AbstractBankAccount> getAccounts(){return accountNumbers;}
 }

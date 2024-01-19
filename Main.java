@@ -35,6 +35,8 @@ public class Main {
         Path accountsF = PathGetter.programResource("resources/accounts.txt");
         PathGetter.ensureExistance(accountsF);
         Path encryptStuff = PathGetter.programResource("resources/encrypt.txt");
+        PathGetter.ensureExistance(PathGetter.programResource("resources/log.txt"));
+        PathGetter.ensureExistance(PathGetter.programResource("resources/bankData.txt"));
         if (!Files.exists(encryptStuff))
             try {
             Files.write(encryptStuff, "abcdefghijklmnop\n65536".getBytes(), java.nio.file.StandardOpenOption.CREATE);
@@ -54,17 +56,16 @@ public class Main {
             System.out.println(encrypt.get(0));
             System.out.println(Arrays.toString(encrypt.get(0).getBytes()));
             byte[] salt = encrypt.get(0).getBytes();
-            byte[] hash = Hash.hash(p, salt, ittr);
-            String first = "John";
-            String last = "Does";
+            byte[] hash = Credentials.hash(p, salt, ittr);
+            String name = "John Does";
 
-            String string = Hash.userText(card, hash, first, last, accounts);
+            String string = Credentials.userText(card, hash, name, accounts);
             System.out.println(string);
 
-            System.out.println("ID: " + Hash.userID(string));
-            System.out.println("Pass: " + Hash.password(string));
-            System.out.println("Name: " + Hash.name(string));
-            ArrayList<AbstractBankAccount> accs = Hash.accounts(string);
+            System.out.println("ID: " + Credentials.userID(string));
+            System.out.println("Pass: " + Credentials.password(string));
+            System.out.println("Name: " + Credentials.name(string));
+            ArrayList<AbstractBankAccount> accs = Credentials.accounts(string);
             System.out.println("Accs:");
             for (AbstractBankAccount i : accs) {
                 System.out.println(i);
@@ -102,7 +103,7 @@ public class Main {
             public void run() {
                 JFrameMain frame = new JFrameMain();
                 frame.setVisible(true);
-                frame.setSize(400,300);
+                frame.setSize(960,540);
             }
         });
     }

@@ -16,12 +16,12 @@ import java.util.List;
  *
  * @author Rowan
  */
-public class JPanelUserLogin extends javax.swing.JPanel {
+public class JPanelEmployeeLogin extends javax.swing.JPanel {
     private JFrameMain frame;
     /**
      * Creates new form JPanelLogin
      */
-    public JPanelUserLogin(JFrameMain f) {
+    public JPanelEmployeeLogin(JFrameMain f) {
         frame=f;
         initComponents();
     }
@@ -43,7 +43,7 @@ public class JPanelUserLogin extends javax.swing.JPanel {
         jLabel3 = new javax.swing.JLabel();
         jPasswordField1 = new javax.swing.JPasswordField();
         jButtonLogin = new javax.swing.JButton();
-        jButtonEmployeeSignin = new javax.swing.JButton();
+        jButtonUserSignin = new javax.swing.JButton();
         jButtonExit = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextPaneErrors = new javax.swing.JTextPane();
@@ -74,7 +74,7 @@ public class JPanelUserLogin extends javax.swing.JPanel {
         jPanel2.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.LOWERED));
         jPanel2.setLayout(new java.awt.GridLayout(2, 2, 10, 10));
 
-        jLabel2.setText("Card number:");
+        jLabel2.setText("Employee ID:");
         jPanel2.add(jLabel2);
         jPanel2.add(jTextFieldUsrname);
 
@@ -89,10 +89,10 @@ public class JPanelUserLogin extends javax.swing.JPanel {
             }
         });
 
-        jButtonEmployeeSignin.setText("Sign in as employee");
-        jButtonEmployeeSignin.addActionListener(new java.awt.event.ActionListener() {
+        jButtonUserSignin.setText("Sign in as client");
+        jButtonUserSignin.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonEmployeeSigninActionPerformed(evt);
+                jButtonUserSigninActionPerformed(evt);
             }
         });
 
@@ -120,11 +120,11 @@ public class JPanelUserLogin extends javax.swing.JPanel {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jButtonExit)
-                                .addGap(0, 178, Short.MAX_VALUE))
+                                .addGap(0, 203, Short.MAX_VALUE))
                             .addComponent(jScrollPane1))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jButtonEmployeeSignin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jButtonUserSignin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jButtonLogin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addContainerGap())
         );
@@ -141,7 +141,7 @@ public class JPanelUserLogin extends javax.swing.JPanel {
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButtonEmployeeSignin)
+                    .addComponent(jButtonUserSignin)
                     .addComponent(jButtonExit))
                 .addContainerGap())
         );
@@ -165,17 +165,17 @@ public class JPanelUserLogin extends javax.swing.JPanel {
             Base64.Decoder dec = Base64.getDecoder();
             String line;
             while((line=reader.readLine())!=null){
-                if(username.equals(Credentials.userID(line)))
+                if(username.equals(Credentials.employeeID(line)))
                     if(Arrays.equals(dec.decode(Credentials.password(line)),hash)){
                         //TODO:figure this out
                         jTextPaneErrors.setText("logging in...");
-                        UserAccount user = new UserAccount(username,Credentials.name(line),Credentials.accounts(line));
-                        frame.setPanel(new JPanelAccounts(frame,user));
+                        Employee employee = new Employee(username);
+                        frame.setPanel(new JPanelAccountCreator(frame,employee));
                     }else{
-                        jTextPaneErrors.setText("The card number or password is incorrect.");
+                        jTextPaneErrors.setText("The ID number or password is incorrect.");
                     }
                 else
-                    jTextPaneErrors.setText("The card number or password is incorrect.");
+                    jTextPaneErrors.setText("The ID number or password is incorrect.");
             }
             reader.close();
         }catch(IOException ex){
@@ -191,15 +191,15 @@ public class JPanelUserLogin extends javax.swing.JPanel {
         System.exit(0);
     }//GEN-LAST:event_jButtonExitActionPerformed
 
-    private void jButtonEmployeeSigninActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonEmployeeSigninActionPerformed
-        frame.setPanel(new JPanelEmployeeLogin(frame));
-    }//GEN-LAST:event_jButtonEmployeeSigninActionPerformed
+    private void jButtonUserSigninActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonUserSigninActionPerformed
+        frame.setPanel(new JPanelUserLogin(frame));
+    }//GEN-LAST:event_jButtonUserSigninActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButtonEmployeeSignin;
     private javax.swing.JButton jButtonExit;
     private javax.swing.JButton jButtonLogin;
+    private javax.swing.JButton jButtonUserSignin;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

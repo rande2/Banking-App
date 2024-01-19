@@ -12,10 +12,16 @@ public class JPanelAccountViewer extends javax.swing.JPanel {
     private JFrameMain frame;
     private JPanelAccounts accountsPanel;
     private AbstractBankAccount account;
+    private UserAccount user;
     /**
      * Creates new form JPanelAccountViewer
+     * @param f
+     * @param ap
+     * @param u
+     * @param a
      */
-    public JPanelAccountViewer(JFrameMain f,JPanelAccounts ap,AbstractBankAccount a) {
+    public JPanelAccountViewer(JFrameMain f,JPanelAccounts ap,AbstractBankAccount a,UserAccount u) {
+        user=u;
         frame=f;
         account=a;
         accountsPanel=ap;
@@ -246,7 +252,7 @@ public class JPanelAccountViewer extends javax.swing.JPanel {
 
     private void jButtonWithdrawActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonWithdrawActionPerformed
         try{
-            account.withdraw(Double.parseDouble(jTextFieldWDAmount.getText()));
+            account.withdraw(user,Double.parseDouble(jTextFieldWDAmount.getText()));
             jLabelBalance.setText(String.format("Balance: $%.2f",account.getBalance()));
         }catch(NumberFormatException ex){
             jTextPaneErrors.setText("Invalid withdraw amount.");
@@ -255,7 +261,7 @@ public class JPanelAccountViewer extends javax.swing.JPanel {
 
     private void jButtonDepositActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDepositActionPerformed
         try{
-            account.deposit(Double.parseDouble(jTextFieldWDAmount.getText()));
+            account.deposit(user,Double.parseDouble(jTextFieldWDAmount.getText()));
             jLabelBalance.setText(String.format("Balance: $%.2f",account.getBalance()));
         }catch(NumberFormatException ex){
             jTextPaneErrors.setText("Invalid deposit amount.");

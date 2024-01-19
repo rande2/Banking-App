@@ -4,30 +4,30 @@
  */
 package bankProject;
 
-import java.util.ArrayList;
-
 /**
  *
  * @author Rowan
  */
 public class JPanelAccounts extends javax.swing.JPanel {
     private JFrameMain frame;
+    private UserAccount user;
     /**
      * Creates new form JPanelAccounts
+     * @param f
+     * @param u
      */
-    public JPanelAccounts(JFrameMain f,ArrayList<AbstractBankAccount> accounts) {
+    public JPanelAccounts(JFrameMain f,UserAccount u) {
+        user=u;
         frame=f;
         initComponents();
         JPanelAccounts dis = this;
-        for(AbstractBankAccount i:accounts){
+        for(AbstractBankAccount i:user.getAccounts()){
             javax.swing.JButton button = new javax.swing.JButton();
             String type=i.getTypeString();
             button.setText(type+" Account number "+i.getNumber());
-            button.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                frame.setPanel(new JPanelAccountViewer(frame,dis,i));
-            }
-        });
+            button.addActionListener((java.awt.event.ActionEvent evt) -> {
+                frame.setPanel(new JPanelAccountViewer(frame,dis,i,user));
+            });
             jPanelAccounts.add(button);
         }
     }

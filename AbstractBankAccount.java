@@ -10,7 +10,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -39,12 +41,11 @@ public abstract class AbstractBankAccount {
     
     protected String readBalance(){
         Path file = PathGetter.programResource("resources/accounts.txt");
-        String balanceStr=null;
         try(BufferedReader reader = Files.newBufferedReader(file)){
             String line;
             while((line=reader.readLine())!=null){
-                if(Hash.accountNumber(line).equals(number)){
-                    return Hash.accountBalance(line);
+                if(Credentials.accountNumber(line).equals(number)){
+                    return Credentials.accountBalance(line);
                 }
             }
         } catch (IOException ex) {
@@ -78,12 +79,30 @@ public abstract class AbstractBankAccount {
         }
     }
 
-    public void withdraw(double amount) {
+    public void withdraw(UserAccount user,double amount) {
+        Path file = PathGetter.programResource("resources/log.txt");
+        String time=new Timestamp(new Date().getTime()).toString();
+        try(BufferedWriter writer = Files.newBufferedWriter(file,StandardOpenOption.APPEND)){
+            String logText="Time: "+time+", Name: "+user.getName()+", ID: "+user.getID()+", Account: "+number+", Transaction: withdrawal, Amount: $"+ String.format("%.2f",amount);
+            writer.write(logText);
+            writer.newLine();
+        } catch (IOException ex) {
+            Logger.getLogger(AbstractBankAccount.class.getName()).log(Level.SEVERE, null, ex);
+        }
         balance -= amount;
         updateBalance();
     }
 
-    public void deposit(double amount) {
+    public void deposit(UserAccount user,double amount) {
+        Path file = PathGetter.programResource("resources/log.txt");
+        String time=new Timestamp(new Date().getTime()).toString();
+        try(BufferedWriter writer = Files.newBufferedWriter(file,StandardOpenOption.APPEND)){
+            String logText="Time: "+time+", Name: "+user.getName()+", ID: "+user.getID()+", Account: "+number+", Transaction: deposit, Amount: $"+ String.format("%.2f",amount);
+            writer.write(logText);
+            writer.newLine();
+        } catch (IOException ex) {
+            Logger.getLogger(AbstractBankAccount.class.getName()).log(Level.SEVERE, null, ex);
+        }
         balance += amount;
         updateBalance();
     }
@@ -98,7 +117,7 @@ public abstract class AbstractBankAccount {
             while((line=reader.readLine())!=null)
                 lines.add(line);
             for (int i = 0; i < lines.size(); i++) {
-                if (Hash.accountNumber(lines.get(i)).equals(number)) {
+                if (Credentials.accountNumber(lines.get(i)).equals(number)) {
                     count = i;
                 }
             }
@@ -107,8 +126,8 @@ public abstract class AbstractBankAccount {
         }
         if (count >= 0) {
             try (BufferedWriter writer = Files.newBufferedWriter(file, StandardOpenOption.TRUNCATE_EXISTING)) {
-                if (lines != null) {
-                    lines.set(count,Hash.accountText(this));
+                if (!lines.isEmpty()) {
+                    lines.set(count,Credentials.accountText(this));
                     for (String i : lines) {
                         writer.write(i);
                         writer.newLine();
