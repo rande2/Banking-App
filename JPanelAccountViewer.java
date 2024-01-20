@@ -364,7 +364,6 @@ public class JPanelAccountViewer extends javax.swing.JPanel {
                     writer.write(Credentials.checkText(account.getNumber(), amountStr, recipient));
                     writer.newLine();
                     writer.close();
-                    System.out.println("Wrote...");
                 } catch (IOException ex) {
                     Logger.getLogger(JPanelAccountViewer.class.getName()).log(Level.SEVERE, null, ex);
                 }
