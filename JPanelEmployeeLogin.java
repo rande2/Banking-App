@@ -272,7 +272,7 @@ public class JPanelEmployeeLogin extends javax.swing.JPanel {
             //display the new ID
             jTextPaneErrors.setText("New employee ID: " + employeeID);
         } catch (IOException | NumberFormatException ex) {
-            Logger.getLogger(JPanelAccountCreator.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(JPanelEmployeeLogin.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
