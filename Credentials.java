@@ -229,7 +229,7 @@ public class Credentials {
         return builder.toString();
     }
 
-    public static byte[] hash(String password, byte[] salt, int itterationCount) {
+    public static byte[] hash(String password, byte[] salt, int iterationCount) {
         //length of key to be created in bits
         int keyLength = salt.length * 8;
         PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, iterationCount, keyLength);
