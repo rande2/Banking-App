@@ -22,20 +22,22 @@ public class PathGetter {
     private static final char sep = System.getProperty("file.separator").charAt(0);
     private static final Path PROGRAM_DIR = findProgDir();
 
-    public static Path findProgDir() {
+    private static Path findProgDir() {
         String path = PathGetter.class.getProtectionDomain().getCodeSource().getLocation().getPath().substring(1);
         //if run from jar, the path ends with the jar file
         String jar = "raj.";
         boolean isJar = false;
+        char character;
         int sim = 0;
         for (int i = path.length() - 1; i > 0; i--) {
+            character = path.charAt(i);
             if (isJar) {
-                if (path.charAt(i) == '/') {
-                    path = path.substring(0,i);
+                if (character == '/') {
+                    path = path.substring(0, i);
                     break;
                 }
             } else {
-                if (path.charAt(i) == jar.charAt(sim++)) {
+                if (character == jar.charAt(sim++)) {
                     if (sim == jar.length()) {
                         isJar = true;
                     }
@@ -64,15 +66,18 @@ public class PathGetter {
     }
 
     public static void ensureExistance(Path path) {
+        //if the file does not exist
         if (!Files.exists(path))
             try {
-            Path parent = path.getParent();
-            if (!Files.exists(parent)) {
-                Files.createDirectories(parent);
+                //get directory containing the file
+                Path parent = path.getParent();
+                //if the directory does not exist, create it
+                if (!Files.exists(parent)) {
+                    Files.createDirectories(parent);
+                }
+                Files.createFile(path);
+            } catch (IOException ex) {
+                Logger.getLogger(PathGetter.class.getName()).log(Level.SEVERE, null, ex);
             }
-            Files.createFile(path);
-        } catch (IOException ex) {
-            Logger.getLogger(PathGetter.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
 }

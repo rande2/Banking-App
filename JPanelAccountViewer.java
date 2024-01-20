@@ -4,30 +4,45 @@
  */
 package bankProject;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  * @author rande2
  */
 public class JPanelAccountViewer extends javax.swing.JPanel {
+
     private JFrameMain frame;
-    private JPanelAccounts accountsPanel;
     private AbstractBankAccount account;
     private UserAccount user;
+    private CheckingAccount checkingAccount;
+
     /**
      * Creates new form JPanelAccountViewer
+     *
      * @param f
      * @param ap
      * @param u
      * @param a
      */
-    public JPanelAccountViewer(JFrameMain f,JPanelAccounts ap,AbstractBankAccount a,UserAccount u) {
-        user=u;
-        frame=f;
-        account=a;
-        accountsPanel=ap;
+    public JPanelAccountViewer(JFrameMain f, JPanelAccounts ap, AbstractBankAccount a, UserAccount u) {
+        user = u;
+        frame = f;
+        account = a;
         initComponents();
-        jLabelTitle.setText(a.getTypeString()+" Account #"+a.getNumber());
-        jLabelBalance.setText(String.format("Balance: $%.2f",a.getBalance()));
+        //set title to the account number
+        jLabelTitle.setText(a.getTypeString() + " Account #" + a.getNumber());
+        //set balance text to the account's balance
+        jLabelBalance.setText(String.format("Balance: $%.2f", a.getBalance()));
     }
 
     /**
@@ -56,6 +71,10 @@ public class JPanelAccountViewer extends javax.swing.JPanel {
         jLabel3 = new javax.swing.JLabel();
         jTextFieldRecipName = new javax.swing.JTextField();
         jButtonCheck = new javax.swing.JButton();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jTextPaneCheckInfo = new javax.swing.JTextPane();
+        jLabel4 = new javax.swing.JLabel();
+        jButtonCashCheck = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextPaneErrors = new javax.swing.JTextPane();
 
@@ -138,42 +157,70 @@ public class JPanelAccountViewer extends javax.swing.JPanel {
         jLabel2.setText("Transfer: Recipient Account Number:");
 
         jButtonTransfer.setText("Transfer");
+        jButtonTransfer.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonTransferActionPerformed(evt);
+            }
+        });
 
         jLabel3.setText("Check: Recipient name:");
 
         jButtonCheck.setText("Create Check");
+        jButtonCheck.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonCheckActionPerformed(evt);
+            }
+        });
+
+        jTextPaneCheckInfo.setEditable(false);
+        jTextPaneCheckInfo.setText("Check info");
+        jScrollPane2.setViewportView(jTextPaneCheckInfo);
+
+        jLabel4.setText("Also used for source account number of check");
+
+        jButtonCashCheck.setText("Cash Check");
+        jButtonCashCheck.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonCashCheckActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(jLabel3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jTextFieldRecipName))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jTextFieldRecipAccNum, javax.swing.GroupLayout.DEFAULT_SIZE, 734, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                        .addComponent(jScrollPane2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonCheck)
+                        .addGap(9, 9, 9))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jTextFieldWDAmount))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                        .addComponent(jLabel4)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButtonTransfer))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jButtonTransfer, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jButtonCheck, javax.swing.GroupLayout.Alignment.TRAILING)))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addComponent(jLabel3)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jTextFieldRecipName))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                                .addGap(0, 0, Short.MAX_VALUE)
                                 .addComponent(jButtonWithdraw)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jButtonDeposit))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                                .addComponent(jLabel2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jTextFieldRecipAccNum))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jTextFieldWDAmount, javax.swing.GroupLayout.PREFERRED_SIZE, 183, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                            .addComponent(jButtonCashCheck, javax.swing.GroupLayout.Alignment.TRAILING))))
                 .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
@@ -192,13 +239,21 @@ public class JPanelAccountViewer extends javax.swing.JPanel {
                     .addComponent(jTextFieldRecipAccNum, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButtonTransfer)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jButtonTransfer)
+                            .addComponent(jLabel4))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel3)
+                            .addComponent(jTextFieldRecipName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonCheck))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(jTextFieldRecipName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButtonCheck))
+                .addComponent(jButtonCashCheck)
+                .addContainerGap(210, Short.MAX_VALUE))
         );
 
         jTextPaneErrors.setEditable(false);
@@ -247,31 +302,207 @@ public class JPanelAccountViewer extends javax.swing.JPanel {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        frame.setPanel(accountsPanel);
+        //go back to the accounts page
+        frame.setPanel(new JPanelAccounts(frame, user));
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButtonWithdrawActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonWithdrawActionPerformed
-        try{
-            account.withdraw(user,Double.parseDouble(jTextFieldWDAmount.getText()));
-            jLabelBalance.setText(String.format("Balance: $%.2f",account.getBalance()));
-        }catch(NumberFormatException ex){
+        try {
+            //withdraw the amount from the account
+            account.withdraw(user, Double.parseDouble(jTextFieldWDAmount.getText()));
+            //update the labels
+            jLabelBalance.setText(String.format("Balance: $%.2f", account.getBalance()));
+            jTextPaneErrors.setText("");
+        } catch (NumberFormatException ex) {
             jTextPaneErrors.setText("Invalid withdraw amount.");
         }
     }//GEN-LAST:event_jButtonWithdrawActionPerformed
 
     private void jButtonDepositActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDepositActionPerformed
-        try{
-            account.deposit(user,Double.parseDouble(jTextFieldWDAmount.getText()));
-            jLabelBalance.setText(String.format("Balance: $%.2f",account.getBalance()));
-        }catch(NumberFormatException ex){
+        try {
+            //deposit the amount into the account
+            account.deposit(user, Double.parseDouble(jTextFieldWDAmount.getText()));
+            //update the labels
+            jLabelBalance.setText(String.format("Balance: $%.2f", account.getBalance()));
+            jTextPaneErrors.setText("");
+        } catch (NumberFormatException ex) {
             jTextPaneErrors.setText("Invalid deposit amount.");
         }
     }//GEN-LAST:event_jButtonDepositActionPerformed
+
+    private void jButtonCheckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCheckActionPerformed
+        try {
+            String amountStr = jTextFieldWDAmount.getText();
+            double amount = Double.parseDouble(amountStr);
+            //ensure the amount is not negative
+            if (amount < 0) {
+                return;
+            }
+            //only continue if the account is a checking account
+            if (account.getType() == 'C') {
+                String recipient = jTextFieldRecipName.getText();
+                jTextPaneCheckInfo.setText(((CheckingAccount) account).getCheck(recipient, amount));
+                jTextPaneErrors.setText("");
+                //get check file
+                Path checks = PathGetter.programResource("resources/check.txt");
+                Path users = PathGetter.programResource("resources/users.txt");
+                //write the check data to the check file
+                try {
+                    List<String> allUsers = Files.readAllLines(users);
+                    boolean found = false;
+                    for (String i : allUsers) {
+                        //ensure it is an existing user
+                        if (i.charAt(2)=='U'&&Credentials.name(i).equals(recipient)) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        jTextPaneErrors.setText("Invalid recipient");
+                        return;
+                    }
+                    BufferedWriter writer = Files.newBufferedWriter(checks, StandardOpenOption.APPEND);
+                    writer.write(Credentials.checkText(account.getNumber(), amountStr, recipient));
+                    writer.newLine();
+                    writer.close();
+                    System.out.println("Wrote...");
+                } catch (IOException ex) {
+                    Logger.getLogger(JPanelAccountViewer.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        } catch (NumberFormatException e) {
+            jTextPaneErrors.setText("Invalid amount of money");
+        }
+    }//GEN-LAST:event_jButtonCheckActionPerformed
+
+    private void jButtonTransferActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonTransferActionPerformed
+        try {
+            double amount = Double.parseDouble(jTextFieldWDAmount.getText());
+            //only continue if the amount is not negative
+            if (amount < 0) {
+                return;
+            }
+            Path accounts = PathGetter.programResource("resources/accounts.txt");
+            try {
+                String targetNumber = jTextFieldRecipAccNum.getText();
+                String line;
+                BufferedReader reader = Files.newBufferedReader(accounts);
+                while ((line = reader.readLine()) != null) {
+                    //find the account in the list
+                    if (Credentials.accountNumber(line).equals(targetNumber)) {
+                        break;
+                    }
+                }
+                reader.close();
+                //only continue if an account was found
+                if (line == null) {
+                    return;
+                }
+                //withdraw the money
+                account.withdraw(user, amount);
+                //get the recipient account
+                String accNum = Credentials.accountNumber(line);
+                //check if the recipient account is owned by the user.
+                boolean ownedByUser = false;
+                ArrayList<AbstractBankAccount> userAccs = user.getAccounts();
+                int length = userAccs.size();
+                for (int i = 0; i < length; i++) {
+                    //if the recipient account is owned by the user, deposit to the existing account
+                    if (userAccs.get(i).getNumber().equals(accNum)) {
+                        userAccs.get(i).deposit(user, amount);
+                        ownedByUser = true;
+                    }
+                }
+                //if not owned by the user, instantiate it
+                if (!ownedByUser) {
+                    AbstractBankAccount.newAccount(Credentials.accountType(line) + accNum).deposit(user, amount);
+                }
+                jLabelBalance.setText(String.format("Balance: $%.2f", account.getBalance()));
+                jTextPaneCheckInfo.setText("Transaction successful");
+                jTextFieldWDAmount.setText("");
+                jTextFieldRecipAccNum.setText("");
+            } catch (IOException ex) {
+                Logger.getLogger(JPanelAccountViewer.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } catch (NumberFormatException e) {
+            jTextPaneErrors.setText("Invalid amount of money");
+        }
+    }//GEN-LAST:event_jButtonTransferActionPerformed
+
+    private void jButtonCashCheckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCashCheckActionPerformed
+        String name = user.getName();
+        String number = jTextFieldRecipAccNum.getText();
+        String amount = jTextFieldWDAmount.getText();
+        Path checks = PathGetter.programResource("resources/check.txt");
+        try {
+            //get all checks
+            List<String> allChecks = Files.readAllLines(checks);
+            String checkStr;
+            int length = allChecks.size();
+            //for each check
+            for (int i = 0; i < length; i++) {
+                checkStr = allChecks.get(i);
+                //if the check is found
+                if (Credentials.checkSource(checkStr).equals(number) && Credentials.checkRecipient(checkStr).equals(name) && Credentials.checkAmount(checkStr).equals(amount)) {
+                    //get the amount of money
+                    double amountNum = Double.parseDouble(amount);
+                    AbstractBankAccount source=null;
+                    boolean success = false;
+                    //get the account
+                    Path accounts = PathGetter.programResource("resources/accounts.txt");
+                    //for each account owned by the user
+                    for (AbstractBankAccount j : user.getAccounts()) {
+                        //if the user owns the target account
+                        if (j.getNumber().equals(number)) {
+                            //succeed
+                            success = true;
+                            source = j;
+                            break;
+                        }
+                    }
+                    //if the attempt did not succeed
+                    if (!success) {
+                        //look through all accounts
+                        List<String> allAccounts = Files.readAllLines(accounts);
+                        for (String j : allAccounts) {
+                            //if the numbers match
+                            if (Credentials.accountNumber(j).equals(number)) {
+                                //succeed
+                                source = new CheckingAccount(j);
+                                success = true;
+                                break;
+                            }
+                        }
+                    }
+                    //if success
+                    if (success&&source!=null) {
+                        //withdraw and deposit
+                        account.deposit(user, amountNum);
+                        source.withdraw(user, amountNum);
+                        //update panel
+                        jLabelBalance.setText(String.format("Balance: $%.2f", account.getBalance()));
+                        jTextPaneCheckInfo.setText("Transaction successful");
+                        jTextFieldWDAmount.setText("");
+                        jTextFieldRecipAccNum.setText("");
+                        allChecks.remove(i);
+                        Files.write(checks,allChecks, StandardOpenOption.TRUNCATE_EXISTING);
+                    }else{
+                        jTextPaneErrors.setText("Transaction failed. Ensure info is correct.");
+                    }
+                    break;
+                }
+            }
+        } catch (IOException | NumberFormatException ex) {
+            jTextPaneErrors.setText("Transaction failed. A program error occurred.");
+            Logger.getLogger(JPanelAccountViewer.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jButtonCashCheckActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButtonCashCheck;
     private javax.swing.JButton jButtonCheck;
     private javax.swing.JButton jButtonDeposit;
     private javax.swing.JButton jButtonTransfer;
@@ -279,15 +510,18 @@ public class JPanelAccountViewer extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabelBalance;
     private javax.swing.JLabel jLabelTitle;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextField jTextFieldRecipAccNum;
     private javax.swing.JTextField jTextFieldRecipName;
     private javax.swing.JTextField jTextFieldWDAmount;
+    private javax.swing.JTextPane jTextPaneCheckInfo;
     private javax.swing.JTextPane jTextPaneErrors;
     // End of variables declaration//GEN-END:variables
 }

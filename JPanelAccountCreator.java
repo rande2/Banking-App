@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,8 +32,13 @@ public class JPanelAccountCreator extends javax.swing.JPanel {
         employee = e;
         initComponents();
         Path log = PathGetter.programResource("resources/log.txt");
+        //display all the log data for the employee to read
+        //TODO: avoid filling the RAM with a large log file, change to bufferedreader
+        //and load the file in segments
         try {
-            jTextPaneLog.setText(Files.readString(log));
+            jTextPaneLog.setText(
+                Files.newBufferedReader(log).lines().collect(java.util.stream.Collectors.joining(System.lineSeparator()))
+            );
         } catch (IOException ex) {
             Logger.getLogger(JPanelAccountCreator.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -66,6 +73,7 @@ public class JPanelAccountCreator extends javax.swing.JPanel {
         jSeparator1 = new javax.swing.JSeparator();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTextPaneNewUserID = new javax.swing.JTextPane();
+        jLabel6 = new javax.swing.JLabel();
 
         jPanel1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.LOWERED));
 
@@ -114,6 +122,11 @@ public class JPanelAccountCreator extends javax.swing.JPanel {
         jLabel4.setText("Account type(C,J,S):");
 
         jButtonCreateAccount.setText("Create Account");
+        jButtonCreateAccount.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonCreateAccountActionPerformed(evt);
+            }
+        });
 
         jButton1.setText("Exit");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -134,6 +147,8 @@ public class JPanelAccountCreator extends javax.swing.JPanel {
         jTextPaneNewUserID.setEditable(false);
         jScrollPane2.setViewportView(jTextPaneNewUserID);
 
+        jLabel6.setText("Separate the IDs by a comma");
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -150,7 +165,10 @@ public class JPanelAccountCreator extends javax.swing.JPanel {
                             .addComponent(jLabel2)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                             .addComponent(jTextFieldName))
-                        .addComponent(jSeparator1)
+                        .addGroup(jPanel2Layout.createSequentialGroup()
+                            .addComponent(jLabel6)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(jSeparator1))
                         .addGroup(jPanel2Layout.createSequentialGroup()
                             .addComponent(jButton1)
                             .addGap(0, 0, Short.MAX_VALUE))
@@ -196,8 +214,13 @@ public class JPanelAccountCreator extends javax.swing.JPanel {
                             .addComponent(jButtonCreateUser)
                             .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(14, 14, 14)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(14, 14, 14))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                                .addComponent(jLabel6)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel3)
                             .addComponent(jTextFieldUserID, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -255,11 +278,17 @@ public class JPanelAccountCreator extends javax.swing.JPanel {
         Path bankData = PathGetter.programResource("resources/bankData.txt");
         Path usersFile = PathGetter.programResource("resources/users.txt");
         String name = jTextFieldName.getText();
+        String passwordStr = jTextFieldPassword.getText();
+        //only continue if the fields are not empty
+        if(name==null||passwordStr==null){
+            jTextPaneNewUserID.setText("Field is empty");
+            return;
+        }
         try {
-            //0: salt, 1:ittrs
+            //index: 0: salt, 1:ittrs
             List<String> encrypt = Files.readAllLines(encryptFile);
             int ittrs = Integer.parseInt(encrypt.get(1));
-            byte[] password = Credentials.hash(jTextFieldPassword.getText(), encrypt.get(0).getBytes(), ittrs);
+            byte[] password = Credentials.hash(passwordStr, encrypt.get(0).getBytes(), ittrs);
             List<String> data = Files.readAllLines(bankData);
             //get next user id number
             String userID = data.get(0);
@@ -267,10 +296,11 @@ public class JPanelAccountCreator extends javax.swing.JPanel {
             //get future id number
             Long newID = temp + 1;
             //ensure leading zeros
-            for (int i = 0; i < 10 - userID.length(); i++) {
+            int length=userID.length();
+            for (int i = 0; i < (10 - length); i++) {
                 userID = "0" + userID;
             }
-            //rewrite new id to file
+            //rewrite the next ID number to the bankData file
             data.set(0, newID.toString());
             BufferedWriter writer = Files.newBufferedWriter(bankData, StandardOpenOption.TRUNCATE_EXISTING);
             for (String i : data) {
@@ -284,13 +314,96 @@ public class JPanelAccountCreator extends javax.swing.JPanel {
             writer.write(userText);
             writer.newLine();
             writer.close();
-            jTextPaneNewUserID.setText("New user ID: "+userID);
+            //display the new ID
+            jTextPaneNewUserID.setText("New user ID: " + userID);
         } catch (IOException | NumberFormatException ex) {
             Logger.getLogger(JPanelAccountCreator.class.getName()).log(Level.SEVERE, null, ex);
         }
         jTextFieldName.setText(null);
         jTextFieldPassword.setText(null);
     }//GEN-LAST:event_jButtonCreateUserActionPerformed
+
+    private void jButtonCreateAccountActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCreateAccountActionPerformed
+        //get required files
+        Path bankData = PathGetter.programResource("resources/bankData.txt");
+        Path accountsFile = PathGetter.programResource("resources/accounts.txt");
+        Path usersFile = PathGetter.programResource("resources/users.txt");
+        String idStr = jTextFieldUserID.getText();
+        //get separated user ids from the input text
+        idStr = idStr.replaceAll("\\s", "");
+        String[] ids = idStr.split(",");
+        String type = jTextFieldAccountType.getText();
+        //only continue if valid type count
+        if (type.length() == 1) {
+            //only continue if valid type is provided
+            //if the type is not Joint, allow only one user to own the account
+            char t = type.charAt(0);
+            if (!(t == 'J' || t == 'C' || t == 'S') || (t != 'J' && ids.length > 1)) {
+                System.out.println("fail");
+                return;
+            }
+            List<String> data;
+            try {
+                data = Files.readAllLines(bankData);
+                //get next user id number
+                String accountNum = data.get(1);
+                Long temp = Long.valueOf(accountNum);
+                //get future id number
+                Long newAccountNum = temp + 1;
+                //ensure leading zeros
+                int length=accountNum.length();
+                for (int i = 0; i < 10 - length; i++) {
+                    accountNum = "0" + accountNum;
+                }
+                //rewrite new id to file
+                data.set(0, newAccountNum.toString());
+                BufferedWriter writer = Files.newBufferedWriter(bankData, StandardOpenOption.TRUNCATE_EXISTING);
+                for (String i : data) {
+                    writer.write(i);
+                    writer.newLine();
+                }
+                writer.close();
+                //create bank account and write its data to the accounts file
+                AbstractBankAccount account = AbstractBankAccount.newAccount(type + accountNum);
+                writer = Files.newBufferedWriter(accountsFile, StandardOpenOption.APPEND);
+                writer.write(Credentials.accountText(account));
+                writer.newLine();
+                writer.close();
+                //read all users from the users file
+                List<String> lines = Files.readAllLines(usersFile);
+                String id;
+                String line;
+                for (int i = 0; i < lines.size(); i++) {
+                    //get the user's id
+                    line = lines.get(i);
+                    id = Credentials.userID(line);
+                    for (String j : ids) {
+                        //if the string corresponds to a target ID
+                        if (id!=null&&id.equals(j)) {
+                            byte[] password = Base64.getDecoder().decode(Credentials.password(line));
+                            //add the account to the list of accounts owned by the user.
+                            ArrayList<AbstractBankAccount> accounts = Credentials.accounts(line);
+                            accounts.add(account);
+                            //set the user's text to the updated text containing the new account
+                            String name = Credentials.name(line);
+                            lines.set(i, Credentials.userText(id, password, name, accounts));
+                        }
+                    }
+                }
+                //rewrite the users to the users file
+                writer = Files.newBufferedWriter(usersFile, StandardOpenOption.APPEND);
+                for (String i : lines) {
+                    writer.write(i);
+                    writer.newLine();
+                }
+
+            } catch (IOException ex) {
+                Logger.getLogger(JPanelAccountCreator.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        }
+
+    }//GEN-LAST:event_jButtonCreateAccountActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -303,6 +416,7 @@ public class JPanelAccountCreator extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;

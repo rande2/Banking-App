@@ -9,9 +9,11 @@ package bankProject;
  * @author Rowan
  */
 public class JointAccount extends AbstractBankAccount{
-    JointAccount(String string){
+    JointAccount(String accString){
         type='J';
-        number=string.substring(1,string.length());
-        balance=Double.parseDouble(readBalance());
+        number=accString.substring(1,accString.length());
+        String b = readBalance();
+        if(b!=null)
+            balance=Double.parseDouble(b);
     }
 }

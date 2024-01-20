@@ -7,9 +7,6 @@ package bankProject;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,13 +27,12 @@ public class Main {
      */
     public static void main(String[] args) {
         //ensure the files exist
-        Path users = PathGetter.programResource("resources/users.txt");
-        PathGetter.ensureExistance(users);
-        Path accountsF = PathGetter.programResource("resources/accounts.txt");
-        PathGetter.ensureExistance(accountsF);
+        PathGetter.ensureExistance(PathGetter.programResource("resources/users.txt"));
+        PathGetter.ensureExistance(PathGetter.programResource("resources/accounts.txt"));
         Path encryptStuff = PathGetter.programResource("resources/encrypt.txt");
         PathGetter.ensureExistance(PathGetter.programResource("resources/log.txt"));
-        PathGetter.ensureExistance(PathGetter.programResource("resources/bankData.txt"));
+        Path bankData = PathGetter.programResource("resources/bankData.txt");
+        PathGetter.ensureExistance(PathGetter.programResource("resources/check.txt"));
         if (!Files.exists(encryptStuff))
             try {
             Files.write(encryptStuff, "abcdefghijklmnop\n65536".getBytes(), java.nio.file.StandardOpenOption.CREATE);
@@ -44,33 +40,9 @@ public class Main {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        String card = "1234567890";
-        String p = "my_pass";
-        ArrayList<AbstractBankAccount> accounts = new ArrayList<>();
-        accounts.add(AbstractBankAccount.newAccount("C1234567890"));
-        accounts.add(AbstractBankAccount.newAccount("J9876543210"));
-        List<String> encrypt;
-        try {
-            encrypt = Files.readAllLines(encryptStuff);
-            int ittr = Integer.parseInt(encrypt.get(1));
-            System.out.println(encrypt.get(0));
-            System.out.println(Arrays.toString(encrypt.get(0).getBytes()));
-            byte[] salt = encrypt.get(0).getBytes();
-            byte[] hash = Credentials.hash(p, salt, ittr);
-            String name = "John Does";
-
-            String string = Credentials.userText(card, hash, name, accounts);
-            System.out.println(string);
-
-            System.out.println("ID: " + Credentials.userID(string));
-            System.out.println("Pass: " + Credentials.password(string));
-            System.out.println("Name: " + Credentials.name(string));
-            ArrayList<AbstractBankAccount> accs = Credentials.accounts(string);
-            System.out.println("Accs:");
-            for (AbstractBankAccount i : accs) {
-                System.out.println(i);
-            }
-            System.out.println("a");
+        if (!Files.exists(bankData))
+            try {
+            Files.write(bankData, "1\n1".getBytes(), java.nio.file.StandardOpenOption.CREATE);
         } catch (IOException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -103,7 +75,7 @@ public class Main {
             public void run() {
                 JFrameMain frame = new JFrameMain();
                 frame.setVisible(true);
-                frame.setSize(960,540);
+                frame.setSize(960, 540);
             }
         });
     }

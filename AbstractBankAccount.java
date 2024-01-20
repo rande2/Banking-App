@@ -27,30 +27,34 @@ public abstract class AbstractBankAccount {
     protected double balance = 0;
 
     public static AbstractBankAccount newAccount(String s) {
+        //return account type corresponding to type char in the string
         switch (s.charAt(0)) {
-            case 'C':
+            case 'C'://checking
                 return new CheckingAccount(s);
-            case 'S':
+            case 'S'://savings
                 return new SavingsAccount(s);
-            case 'J':
+            case 'J'://joint
                 return new JointAccount(s);
             default:
                 return null;
         }
     }
-    
-    protected String readBalance(){
+
+    protected String readBalance() {
+        //get file storing bank accounts
         Path file = PathGetter.programResource("resources/accounts.txt");
-        try(BufferedReader reader = Files.newBufferedReader(file)){
+        try (BufferedReader reader = Files.newBufferedReader(file)) {
             String line;
-            while((line=reader.readLine())!=null){
-                if(Credentials.accountNumber(line).equals(number)){
+            while ((line = reader.readLine()) != null) {
+                //if the account numbers match
+                if (Credentials.accountNumber(line).equals(number)) {
+                    //return the balance in the account
                     return Credentials.accountBalance(line);
                 }
             }
         } catch (IOException ex) {
             Logger.getLogger(AbstractBankAccount.class.getName()).log(Level.SEVERE, null, ex);
-        }      
+        }
         return null;
     }
 
@@ -67,6 +71,7 @@ public abstract class AbstractBankAccount {
     }
 
     public String getTypeString() {
+        //convert type char to a full string
         switch (type) {
             case 'C':
                 return "Checking";
@@ -79,60 +84,87 @@ public abstract class AbstractBankAccount {
         }
     }
 
-    public void withdraw(UserAccount user,double amount) {
+    public void withdraw(UserAccount user, double amount) {
+        //ensure no gaining money through negative withdraw
+        if (amount < 0) {
+            return;
+        }
         Path file = PathGetter.programResource("resources/log.txt");
-        String time=new Timestamp(new Date().getTime()).toString();
-        try(BufferedWriter writer = Files.newBufferedWriter(file,StandardOpenOption.APPEND)){
-            String logText="Time: "+time+", Name: "+user.getName()+", ID: "+user.getID()+", Account: "+number+", Transaction: withdrawal, Amount: $"+ String.format("%.2f",amount);
+        //put a timestamp on the log
+        String time = new Timestamp(new Date().getTime()).toString();
+        try (BufferedWriter writer = Files.newBufferedWriter(file, StandardOpenOption.APPEND)) {
+            //create and write the log entry
+            String logText = "Time: " + time + ", Name: " + user.getName() + ", ID: " + user.getID() + ", Account: " + number + ", Transaction: withdrawal, Amount: $" + String.format("%.2f", amount);
             writer.write(logText);
             writer.newLine();
+            writer.close();
         } catch (IOException ex) {
             Logger.getLogger(AbstractBankAccount.class.getName()).log(Level.SEVERE, null, ex);
         }
+        //update balance
         balance -= amount;
         updateBalance();
     }
 
-    public void deposit(UserAccount user,double amount) {
+    public void deposit(UserAccount user, double amount) {
+        //ensure valid amount
+        if (amount < 0) {
+            return;
+        }
         Path file = PathGetter.programResource("resources/log.txt");
-        String time=new Timestamp(new Date().getTime()).toString();
-        try(BufferedWriter writer = Files.newBufferedWriter(file,StandardOpenOption.APPEND)){
-            String logText="Time: "+time+", Name: "+user.getName()+", ID: "+user.getID()+", Account: "+number+", Transaction: deposit, Amount: $"+ String.format("%.2f",amount);
+        //get timestamp
+        String time = new Timestamp(new Date().getTime()).toString();
+        try (BufferedWriter writer = Files.newBufferedWriter(file, StandardOpenOption.APPEND)) {
+            //create and write log entry
+            String logText = "Time: " + time + ", Name: " + user.getName() + ", ID: " + user.getID() + ", Account: " + number + ", Transaction: deposit, Amount: $" + String.format("%.2f", amount);
             writer.write(logText);
             writer.newLine();
+            writer.close();
         } catch (IOException ex) {
             Logger.getLogger(AbstractBankAccount.class.getName()).log(Level.SEVERE, null, ex);
         }
+        //update balance
         balance += amount;
         updateBalance();
     }
 
     private void updateBalance() {
+        //get path to accounts file
         Path file = PathGetter.programResource("resources/accounts.txt");
-        PathGetter.ensureExistance(file);
-        int count = -1;
+        //index in the list of lines
+        int index = -1;
         ArrayList<String> lines = new ArrayList<>();
         try (BufferedReader reader = Files.newBufferedReader(file)) {
             String line;
-            while((line=reader.readLine())!=null)
+            //read all accounts
+            while ((line = reader.readLine()) != null) {
                 lines.add(line);
+            }
+            //find where in the list of accounts this account is
             for (int i = 0; i < lines.size(); i++) {
                 if (Credentials.accountNumber(lines.get(i)).equals(number)) {
-                    count = i;
+                    //record the index of this account
+                    index = i;
                 }
             }
+            reader.close();
         } catch (IOException ex) {
             Logger.getLogger(AbstractBankAccount.class.getName()).log(Level.SEVERE, null, ex);
         }
-        if (count >= 0) {
+        //if found
+        if (index >= 0) {
+            //create a new string for this account and write it to the list
+            //write the list to the file
             try (BufferedWriter writer = Files.newBufferedWriter(file, StandardOpenOption.TRUNCATE_EXISTING)) {
                 if (!lines.isEmpty()) {
-                    lines.set(count,Credentials.accountText(this));
+                    //update the text for this account and write it to the file
+                    lines.set(index, Credentials.accountText(this));
                     for (String i : lines) {
                         writer.write(i);
                         writer.newLine();
                     }
                 }
+                writer.close();
             } catch (Exception ex) {
                 Logger.getLogger(AbstractBankAccount.class.getName()).log(Level.SEVERE, null, ex);
             }

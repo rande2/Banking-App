@@ -19,8 +19,10 @@ public class JFrameMain extends javax.swing.JFrame {
     }
 
     public final void setPanel(javax.swing.JPanel panel){
+        //remove any panels it contains
         if(currentPanel!=null)
             remove(currentPanel);
+        //set new panel
         currentPanel=panel;
         add(currentPanel);
         currentPanel.setVisible(true);

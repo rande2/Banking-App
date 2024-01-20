@@ -20,11 +20,14 @@ public class JPanelAccounts extends javax.swing.JPanel {
         user=u;
         frame=f;
         initComponents();
-        JPanelAccounts dis = this;
+        JPanelAccounts dis = this;//didn't know what else to call it
+        //for each account owned by the user
         for(AbstractBankAccount i:user.getAccounts()){
+            //add a button with the text set to the account name
             javax.swing.JButton button = new javax.swing.JButton();
             String type=i.getTypeString();
             button.setText(type+" Account number "+i.getNumber());
+            //set the action to open the account viewer
             button.addActionListener((java.awt.event.ActionEvent evt) -> {
                 frame.setPanel(new JPanelAccountViewer(frame,dis,i,user));
             });
@@ -107,8 +110,8 @@ public class JPanelAccounts extends javax.swing.JPanel {
                 .addContainerGap()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanelAccounts, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 112, Short.MAX_VALUE)
+                .addComponent(jPanelAccounts, javax.swing.GroupLayout.DEFAULT_SIZE, 212, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1)
                     .addComponent(jButtonExit))

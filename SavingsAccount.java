@@ -9,9 +9,11 @@ package bankProject;
  * @author Rowan
  */
 public class SavingsAccount extends AbstractBankAccount{
-    SavingsAccount(String string){
+    SavingsAccount(String accString){
         type='S';
-        number=string.substring(1,string.length());
-        balance=Double.parseDouble(readBalance());
+        number=accString.substring(1,accString.length());
+        String b = readBalance();
+        if(b!=null)
+            balance=Double.parseDouble(b);
     }
 }

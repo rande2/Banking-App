@@ -47,7 +47,11 @@ public class JPanelUserLogin extends javax.swing.JPanel {
         jButtonExit = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextPaneErrors = new javax.swing.JTextPane();
+        jLabel4 = new javax.swing.JLabel();
 
+        setBackground(new java.awt.Color(102, 204, 255));
+
+        jPanel1.setBackground(new java.awt.Color(255, 51, 255));
         jPanel1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.LOWERED));
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
@@ -71,6 +75,7 @@ public class JPanelUserLogin extends javax.swing.JPanel {
                 .addContainerGap())
         );
 
+        jPanel2.setBackground(new java.awt.Color(255, 255, 51));
         jPanel2.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.LOWERED));
         jPanel2.setLayout(new java.awt.GridLayout(2, 2, 10, 10));
 
@@ -107,6 +112,8 @@ public class JPanelUserLogin extends javax.swing.JPanel {
         jTextPaneErrors.setFocusable(false);
         jScrollPane1.setViewportView(jTextPaneErrors);
 
+        jLabel4.setText("Apologies for the colour choice. Read user feedback for more on this.");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -120,7 +127,8 @@ public class JPanelUserLogin extends javax.swing.JPanel {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jButtonExit)
-                                .addGap(0, 178, Short.MAX_VALUE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel4))
                             .addComponent(jScrollPane1))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -142,7 +150,8 @@ public class JPanelUserLogin extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButtonEmployeeSignin)
-                    .addComponent(jButtonExit))
+                    .addComponent(jButtonExit)
+                    .addComponent(jLabel4))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -152,6 +161,7 @@ public class JPanelUserLogin extends javax.swing.JPanel {
         Path encrypt = PathGetter.programResource("resources/encrypt.txt");
         try(BufferedReader reader = Files.newBufferedReader(file)){
             String username=jTextFieldUsrname.getText();
+            //ensure card number is 10 digits
             if(username.length()!=10){
                 jTextPaneErrors.setText("ID must be a 10 digit number");
                 reader.close();
@@ -164,10 +174,13 @@ public class JPanelUserLogin extends javax.swing.JPanel {
             byte[] hash=Credentials.hash(password, salt, ittrs);
             Base64.Decoder dec = Base64.getDecoder();
             String line;
+            //for each account in the accounts file
             while((line=reader.readLine())!=null){
+                //if the usernames match
                 if(username.equals(Credentials.userID(line)))
+                    //if the passwords match
                     if(Arrays.equals(dec.decode(Credentials.password(line)),hash)){
-                        //TODO:figure this out
+                        //sign in with the user's account
                         jTextPaneErrors.setText("logging in...");
                         UserAccount user = new UserAccount(username,Credentials.name(line),Credentials.accounts(line));
                         frame.setPanel(new JPanelAccounts(frame,user));
@@ -203,6 +216,7 @@ public class JPanelUserLogin extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPasswordField jPasswordField1;

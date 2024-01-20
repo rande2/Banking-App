@@ -5,12 +5,16 @@
 package bankProject;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -39,7 +43,7 @@ public class JPanelEmployeeLogin extends javax.swing.JPanel {
         jLabel1 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
-        jTextFieldUsrname = new javax.swing.JTextField();
+        jTextFieldUsername = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
         jPasswordField1 = new javax.swing.JPasswordField();
         jButtonLogin = new javax.swing.JButton();
@@ -47,6 +51,8 @@ public class JPanelEmployeeLogin extends javax.swing.JPanel {
         jButtonExit = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextPaneErrors = new javax.swing.JTextPane();
+        jLabel4 = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
 
         jPanel1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.LOWERED));
 
@@ -74,9 +80,15 @@ public class JPanelEmployeeLogin extends javax.swing.JPanel {
         jPanel2.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.LOWERED));
         jPanel2.setLayout(new java.awt.GridLayout(2, 2, 10, 10));
 
-        jLabel2.setText("Employee ID:");
+        jLabel2.setText("Employee ID (full name if signing up):");
         jPanel2.add(jLabel2);
-        jPanel2.add(jTextFieldUsrname);
+
+        jTextFieldUsername.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextFieldUsernameActionPerformed(evt);
+            }
+        });
+        jPanel2.add(jTextFieldUsername);
 
         jLabel3.setText("Password:");
         jPanel2.add(jLabel3);
@@ -107,6 +119,15 @@ public class JPanelEmployeeLogin extends javax.swing.JPanel {
         jTextPaneErrors.setFocusable(false);
         jScrollPane1.setViewportView(jTextPaneErrors);
 
+        jLabel4.setText("ID: 0987654321, Pass: my_pass");
+
+        jButton1.setText("Sign up");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -120,8 +141,12 @@ public class JPanelEmployeeLogin extends javax.swing.JPanel {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jButtonExit)
-                                .addGap(0, 203, Short.MAX_VALUE))
-                            .addComponent(jScrollPane1))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel4))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jScrollPane1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jButton1)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jButtonUserSignin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -137,12 +162,15 @@ public class JPanelEmployeeLogin extends javax.swing.JPanel {
                 .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 187, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButtonLogin)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jButtonLogin)
+                        .addComponent(jButton1))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButtonUserSignin)
-                    .addComponent(jButtonExit))
+                    .addComponent(jButtonExit)
+                    .addComponent(jLabel4))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -151,7 +179,8 @@ public class JPanelEmployeeLogin extends javax.swing.JPanel {
         Path file = PathGetter.programResource("resources/users.txt");
         Path encrypt = PathGetter.programResource("resources/encrypt.txt");
         try(BufferedReader reader = Files.newBufferedReader(file)){
-            String username=jTextFieldUsrname.getText();
+            String username=jTextFieldUsername.getText();
+            //ensure the right username length
             if(username.length()!=10){
                 jTextPaneErrors.setText("ID must be a 10 digit number");
                 reader.close();
@@ -164,10 +193,13 @@ public class JPanelEmployeeLogin extends javax.swing.JPanel {
             byte[] hash=Credentials.hash(password, salt, ittrs);
             Base64.Decoder dec = Base64.getDecoder();
             String line;
+            //for each user
             while((line=reader.readLine())!=null){
+                //if the employee id matches the id in the current line
                 if(username.equals(Credentials.employeeID(line)))
+                    //if the passwords match
                     if(Arrays.equals(dec.decode(Credentials.password(line)),hash)){
-                        //TODO:figure this out
+                        //sign in with the employee's account
                         jTextPaneErrors.setText("logging in...");
                         Employee employee = new Employee(username);
                         frame.setPanel(new JPanelAccountCreator(frame,employee));
@@ -195,19 +227,74 @@ public class JPanelEmployeeLogin extends javax.swing.JPanel {
         frame.setPanel(new JPanelUserLogin(frame));
     }//GEN-LAST:event_jButtonUserSigninActionPerformed
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        //load required files for encryption and ID info
+        Path encryptFile = PathGetter.programResource("resources/encrypt.txt");
+        Path bankData = PathGetter.programResource("resources/bankData.txt");
+        Path usersFile = PathGetter.programResource("resources/users.txt");
+        String name = jTextFieldUsername.getText();
+        String passwordStr = new String(jPasswordField1.getPassword());
+        //only continue if the fields are not empty
+        if(name==null||passwordStr.length()==0){
+            jTextPaneErrors.setText("Field is empty");
+            return;
+        }
+        try {
+            //index: 0: salt, 1:ittrs
+            List<String> encrypt = Files.readAllLines(encryptFile);
+            int ittrs = Integer.parseInt(encrypt.get(1));
+            byte[] password = Credentials.hash(passwordStr, encrypt.get(0).getBytes(), ittrs);
+            List<String> data = Files.readAllLines(bankData);
+            //get next user/employee id number
+            String employeeID = data.get(0);
+            Long temp = Long.valueOf(employeeID);
+            //get future id number
+            Long newID = temp + 1;
+            //ensure leading zeros
+            int length=employeeID.length();
+            for (int i = 0; i < (10 - length); i++) {
+                employeeID = "0" + employeeID;
+            }
+            //rewrite the next ID number to the bankData file
+            data.set(0, newID.toString());
+            BufferedWriter writer = Files.newBufferedWriter(bankData, StandardOpenOption.TRUNCATE_EXISTING);
+            for (String i : data) {
+                writer.write(i);
+                writer.newLine();
+            }
+            writer.close();
+            //write the new employee's data to the users file
+            String employeeText = Credentials.employeeText(employeeID, password, name);
+            writer = Files.newBufferedWriter(usersFile, StandardOpenOption.APPEND);
+            writer.write(employeeText);
+            writer.newLine();
+            writer.close();
+            //display the new ID
+            jTextPaneErrors.setText("New employee ID: " + employeeID);
+        } catch (IOException | NumberFormatException ex) {
+            Logger.getLogger(JPanelAccountCreator.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jTextFieldUsernameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldUsernameActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextFieldUsernameActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButtonExit;
     private javax.swing.JButton jButtonLogin;
     private javax.swing.JButton jButtonUserSignin;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPasswordField jPasswordField1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextField jTextFieldUsrname;
+    private javax.swing.JTextField jTextFieldUsername;
     private javax.swing.JTextPane jTextPaneErrors;
     // End of variables declaration//GEN-END:variables
 }

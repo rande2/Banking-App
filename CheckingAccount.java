@@ -9,11 +9,22 @@ package bankProject;
  * @author Rowan
  */
 public class CheckingAccount extends AbstractBankAccount{
-    CheckingAccount(String string){
+    CheckingAccount(String accString){
         type='C';
-        number=string.substring(1,string.length());
+        number=accString.substring(1,accString.length());
         readBalance();
-        balance=Double.parseDouble(readBalance());
+        //avoid errors with returning null
+        String b = readBalance();
+        if(b!=null)
+            balance=Double.parseDouble(b);
+    }
+    
+    public String getCheck(String name,double amount){
+        //ensure valid amount
+        if(amount<0)
+            return null;
+        //return a string representing the check
+        return"Recipient: "+name+", From: "+number+", Amount: "+String.format("%.2f",amount);
     }
     
 }
