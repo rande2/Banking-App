@@ -24,7 +24,6 @@ public class JPanelAccountViewer extends javax.swing.JPanel {
     private JFrameMain frame;
     private AbstractBankAccount account;
     private UserAccount user;
-    private CheckingAccount checkingAccount;
 
     /**
      * Creates new form JPanelAccountViewer
