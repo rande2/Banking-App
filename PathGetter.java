@@ -19,7 +19,7 @@ public class PathGetter {
 
     //private static final Path PROGRAM_DIR = findProgramDir();
     private static final Path USER_HOME = Paths.get(System.getProperty("user.home"));
-    private static final char sep = System.getProperty("file.separator").charAt(0);
+    private static final char SEP = System.getProperty("file.separator").charAt(0);
     private static final Path PROGRAM_DIR = findProgDir();
 
     private static Path findProgDir() {
